@@ -5,7 +5,7 @@ using UnityEngine;
 public class Player_Movement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10f;
-    [SerializeField] private float jumpHeight = 10f;
+    [SerializeField] private float jumpHeight = 6f;
     [SerializeField] private LayerMask groundLayer;
     private Rigidbody2D _rbody;
     private float _horizontalMovement;
