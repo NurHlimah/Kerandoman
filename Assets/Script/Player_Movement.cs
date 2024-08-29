@@ -93,8 +93,8 @@ public class Player_Movement : MonoBehaviour
             {
                 _horizontalMovement = value;
                 _animator.SetFloat("xSpeed", Mathf.Abs(_horizontalMovement));
-                
-                if (_horizontalMovement > 0)
+
+                if (_horizontalMovement > 0) 
                     FacingRight = _horizontalMovement > 0;
             }
         }
