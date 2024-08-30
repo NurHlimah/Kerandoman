@@ -36,6 +36,7 @@ public class Player_Movement : MonoBehaviour
         GroundCheck();
         VerticalSpeed = _rbody.velocity.y;
 
+
         _horizontalMovement = (Input.GetAxis("Horizontal"));
         Jump();
     }
