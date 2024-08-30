@@ -11,6 +11,7 @@ public class Player_Movement : MonoBehaviour
     private Animator _animator;
     private float _horizontalMovement;
     private bool _onTheGround;
+    private float _verticalSpeed;
 
     // Start is called before the first frame update
     void Start()
@@ -33,6 +34,8 @@ public class Player_Movement : MonoBehaviour
     void Update()
     {
         GroundCheck();
+        VerticalSpeed = _rbody.velocity.y;
+
         _horizontalMovement = (Input.GetAxis("Horizontal"));
         Jump();
     }
@@ -59,11 +62,21 @@ public class Player_Movement : MonoBehaviour
          }
     }
 
-   private bool OnTheGround()
+
+    
+
+    public bool OnTheGround
     {
-        RaycastHit2D hit =
-            Physics2D.Raycast(transform.position, Vector2.down, 2f, groundLayer);
-        return hit.collider != null;
+        private set
+        {
+            if (_onTheGround != value)
+            {
+                _onTheGround = value;
+                _animator.SetBool("grounded", _onTheGround);
+            }
+        }
+        get => _onTheGround;
+
     }
 
     private void GroundCheck()
@@ -77,6 +90,7 @@ public class Player_Movement : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && _onTheGround)
         {
+            _animator.SetTrigger("jumpTrigger");
             _rbody.AddForce(
                  Vector2.up * jumpHeight,
                  ForceMode2D.Impulse
@@ -142,4 +156,18 @@ public class Player_Movement : MonoBehaviour
         }
         get => _facingRight;
     }
+
+    public float VerticalSpeed
+    {
+        private set
+        {
+            if(_verticalSpeed != value)
+            {
+                _verticalSpeed = value;
+                _animator.SetFloat("ySpeed", _verticalSpeed);
+            }
+        }
+        get => _verticalSpeed;
+    }
+
 }
