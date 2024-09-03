@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Player_Movement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10f;
-    [SerializeField] private float jumpHeight = 7f;
+    [SerializeField] private float jumpHeight = 5f;
     [SerializeField] private LayerMask groundLayer;
     private Rigidbody2D _rbody;
     private Animator _animator;
@@ -50,9 +51,10 @@ public class Player_Movement : MonoBehaviour
 
         if (_playerOnPlatform && Input.GetAxisRaw("Vertical") < 0)
         {
-            _col.enable = false;
+            _col.enabled = false;
             StartCoroutine(EnableCollider());
         }
+
     }
 
     private void Awake()
@@ -148,16 +150,12 @@ public class Player_Movement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
             _playerOnPlatform = true;
-
-
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
             _playerOnPlatform = false;
-
-
     }
 
     private IEnumerator EnableCollider()
