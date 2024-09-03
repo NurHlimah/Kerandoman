@@ -5,13 +5,15 @@ using UnityEngine;
 public class Player_Movement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10f;
-    [SerializeField] private float jumpHeight = 5f;
+    [SerializeField] private float jumpHeight = 7f;
     [SerializeField] private LayerMask groundLayer;
     private Rigidbody2D _rbody;
     private Animator _animator;
     private float _horizontalMovement;
     private bool _onTheGround;
     private float _verticalSpeed;
+    private bool _playerOnPlatform;
+    private TilemapCollider2D _col;
 
     // Start is called before the first frame update
     void Start()
@@ -19,15 +21,22 @@ public class Player_Movement : MonoBehaviour
 
     }
 
-    private float _HorizontalMovement;
-
-    private void setHorizontalMovement(float value)
+    public float HorizontalMovement
     {
-        if (value != _horizontalMovement)
+        private set
         {
-            _horizontalMovement = value;
-        }
+            if (value != _horizontalMovement)
+            {
+                _horizontalMovement = value;
 
+                _animator.SetFloat("xSpeed", Mathf.Abs(_horizontalMovement));
+
+
+                if (_horizontalMovement > 0)
+                    FacingRight = _horizontalMovement > 0;
+            }
+        }
+        get => _horizontalMovement;
     }
 
     // Update is called once per frame
@@ -36,21 +45,28 @@ public class Player_Movement : MonoBehaviour
         GroundCheck();
         VerticalSpeed = _rbody.velocity.y;
 
-
         _horizontalMovement = (Input.GetAxis("Horizontal"));
         Jump();
+
+        if (_playerOnPlatform && Input.GetAxisRaw("Vertical") < 0)
+        {
+            _col.enable = false;
+            StartCoroutine(EnableCollider());
+        }
     }
 
     private void Awake()
     {
         _rbody = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
+        _col = GetComponent<TilemapCollider2D>();
     }
 
     private void FixedUpdate()
     {
         Move();
     }
+
     private void Move()
     {
         _rbody.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, _rbody.velocity.y);
@@ -60,11 +76,8 @@ public class Player_Movement : MonoBehaviour
         if ((horizontalInput > 0 && !FacingRight) || (horizontalInput < 0 && FacingRight))
         {
             FacingRight = !FacingRight;
-         }
+        }
     }
-
-
-    
 
     public bool OnTheGround
     {
@@ -77,7 +90,6 @@ public class Player_Movement : MonoBehaviour
             }
         }
         get => _onTheGround;
-
     }
 
     private void GroundCheck()
@@ -92,47 +104,8 @@ public class Player_Movement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && _onTheGround)
         {
             _animator.SetTrigger("jumpTrigger");
-            _rbody.AddForce(
-                 Vector2.up * jumpHeight,
-                 ForceMode2D.Impulse
-                );
+            _rbody.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
         }
-    }
-    public float HorizontalMovement
-    {
-        private set
-
-        {
-
-            if (value != _horizontalMovement)
-            {
-                _horizontalMovement = value;
-                _animator.SetFloat("xSpeed", Mathf.Abs(_horizontalMovement));
-
-                if (_horizontalMovement > 0) 
-                    FacingRight = _horizontalMovement > 0;
-            }
-        }
-        get => _horizontalMovement;
-    }
-    private void Flip(float speed)
-    {
-        if (speed > 0)
-            transform.rotation = new Quaternion(
-                  transform.rotation.x,
-                  0,
-                  transform.rotation.z,
-                  transform.rotation.w
-
-                );
-        else if (speed < 0 )
-            transform.rotation = new Quaternion(
-                  transform.rotation.x,
-                  180,
-                  transform.rotation.z,
-                  transform.rotation.w
-
-                );
     }
 
     private void Flip()
@@ -149,9 +122,9 @@ public class Player_Movement : MonoBehaviour
     {
         private set
         {
-            if(_facingRight != value)
+            if (_facingRight != value)
             {
-                _facingRight=value;
+                _facingRight = value;
                 Flip();
             }
         }
@@ -162,7 +135,7 @@ public class Player_Movement : MonoBehaviour
     {
         private set
         {
-            if(_verticalSpeed != value)
+            if (_verticalSpeed != value)
             {
                 _verticalSpeed = value;
                 _animator.SetFloat("ySpeed", _verticalSpeed);
@@ -171,4 +144,25 @@ public class Player_Movement : MonoBehaviour
         get => _verticalSpeed;
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+            _playerOnPlatform = true;
+
+
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+            _playerOnPlatform = false;
+
+
+    }
+
+    private IEnumerator EnableCollider()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _col.enabled = true;
+    }
 }
